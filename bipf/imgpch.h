@@ -1,0 +1,12 @@
+#include "img_arc.h"
+#include <posix_io.h>
+#include <global_intdef.h>
+#include <global_ptrdef.h>
+#include <dbg_print.h>
+#include <global.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <stdio.h>
+#include <errno.h>

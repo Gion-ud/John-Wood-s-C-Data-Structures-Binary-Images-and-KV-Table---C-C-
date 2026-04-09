@@ -1,0 +1,21 @@
+# Hitsounds
+hitsounds=drum,normal,soft
+
+hitsounds/drum=drum-hitclap,drum-hitfinish,drum-hitnormal,drum-hitwhistle
+hitsounds/drum/hitclap=high tom,snare,rimshot
+hitsounds/drum/hitfinish=low tom,floor tom,crash cymbol(primary)
+hitsounds/drum/hitnormal=bass drum,toms
+hitsounds/drum/hitwhistle=open hi-hat,tambourine
+
+hitsounds/normal=normal-hitclap,normal-hitfinish,normal-hitnormal,normal-hitwhistle
+hitsounds/normal/hitclap=clap,snare,bass drum
+hitsounds/normal/hitfinish=crash cymbal(primary),china cymbal
+hitsounds/normal/hitnormal=snare,bass drum
+hitsounds/normal/hitwhistle=tambourine,ride cymbal bell
+
+hitsounds/soft=soft-hitclap,soft-hitfinish,soft-hitnormal,soft-hitwhistle
+hitsounds/soft/hitclap=clap,snare
+hitsounds/soft/hitfinish=crash cymbal(secondary),crash cymbal(primary)
+hitsounds/soft/hitnormal=close hi-hat
+hitsounds/soft/hitwhistle=tambourine,ride cymbal
+
