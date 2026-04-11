@@ -1,5 +1,5 @@
-#ifndef __DATA_CONTAINER_H__
-#define __DATA_CONTAINER_H__
+#ifndef __BUFFER_H__
+#define __BUFFER_H__
 
 extern "C" {
 #include <tlv/tlv.h>
@@ -56,4 +56,4 @@ namespace dctr {
 
 #endif
 
-#endif
+#endif /* __BUFFER_H__ */

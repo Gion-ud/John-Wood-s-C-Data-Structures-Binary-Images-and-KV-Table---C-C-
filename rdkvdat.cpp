@@ -63,7 +63,12 @@ int main(int argc, char *argv[]) {
             (int)kv_p->val_len,(char*)kv_p->val_ptr
         );
     }
-
+    std::cout << "\n\n";
+    
+    while(1) {
+        std::cout << "Enter key to retrieve value:\n";
+        std::cin.getline(line_p, line_len + 1);
+    }
 
     kvt_p->~KVTable();
 

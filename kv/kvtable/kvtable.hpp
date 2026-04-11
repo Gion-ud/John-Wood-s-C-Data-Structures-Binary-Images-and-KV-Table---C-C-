@@ -1,6 +1,14 @@
 #ifndef KV_TABLE_HPP
 #define KV_TABLE_HPP
 
+/*
+IMPORTANT:
+    DO NOT USE ASSIGN OPERATOR for an object UNLESS 
+    YOU ARE ASSIGNING TO obj.move_out() for ownership
+    transfer or obj.copy() for making a new copy that's
+    independent from the original object
+*/
+
 extern "C" {
 #include "kvtable.h"
 #include "kv_ser.h"
@@ -110,6 +118,8 @@ public:
         close(fd);
         return 0;
     }
+    KVTable &operator=(const KVTable &obj) = delete;
+    KVTable(const KVTable &obj) = delete;
     ~KVTable() noexcept {
         KVTable_destroy(this->kvt_h);
     }

@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <string.h>
+#include <ctype.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,14 +13,14 @@ static inline void line_rstrip(char *line_p) {
     size_t line_len = strlen(line_p);
     if (!line_len) return;
     char *line_end_p = line_p + line_len - 1;
-    while (line_end_p >= line_p && isspace(*line_end_p)) {
+    while (line_end_p >= line_p && isspace((unsigned char)*line_end_p)) {
         *line_end_p-- = 0;
     }
 }
 static inline char *line_lstrip(char *line_p) {
     if (!line_p) return NULL;
     char *line_begin_p = line_p;
-    while (*line_begin_p && isspace(*line_begin_p)) {
+    while (*line_begin_p && isspace((unsigned char)*line_begin_p)) {
         ++line_begin_p;
     }
     return line_begin_p;
@@ -92,8 +93,8 @@ public:
         out.copy_from(*this);
         return out;
     }
-    cstr(const cstr&) = delete;
-    cstr& operator=(const cstr&) = delete;
+    cstr(const cstr &cstr_obj) = delete;
+    cstr &operator=(const cstr &cstr_obj) = delete;
     const char *data() const noexcept {
         return this->sz_p;
     }
