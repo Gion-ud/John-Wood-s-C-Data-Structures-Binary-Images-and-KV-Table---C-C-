@@ -19,6 +19,18 @@ int main(void) {
     for (__typeof__(v) it = Vector_begin(v); it != Vector_end(v); ++it) {
         printf("%d\n", *it);
     }
+    Vector_pop(v);
+    Vector_pop(v);
+    Vector_pop(v);
+    puts("");
+
+    for (__typeof__(v) it = Vector_begin(v); it != Vector_end(v); ++it) {
+        printf("%d\n", *it);
+    }
+
+    for (__typeof__(v) it = Vector_end(v) - 1; it != Vector_begin(v) - 1; --it) {
+        printf("%d\n", *it);
+    }
 
     Vector_destroy(v);
     return 0;

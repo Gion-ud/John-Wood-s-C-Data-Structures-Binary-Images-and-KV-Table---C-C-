@@ -54,6 +54,12 @@ INLINED void *HPDSVector_get(HPDSVectorHandle vec_h, size_t idx) { // No Bound C
     if (!vec_h) return NULL;
     return (unsigned char*)vec_h + idx * _HPDSVector_header(vec_h)->elem_size;
 }
+INLINED void HPDSVector_pop(HPDSVectorHandle vec_h) { // No Bound Check
+    if (!vec_h) return;
+    struct c_vector_header *vec_hdr_p = _HPDSVector_header(vec_h);
+    if (!vec_hdr_p->length) return;
+    --vec_hdr_p->length;
+}
 
 #define Vector(T) T*
 
@@ -78,6 +84,12 @@ INLINED void *HPDSVector_get(HPDSVectorHandle vec_h, size_t idx) { // No Bound C
     } while(0);\
     __ret;\
 })
+#define Vector_pop(vec_p) \
+    do {\
+        if (!vec_p) break;\
+        HPDSVector_pop(vec_p);\
+    } while(0)
+
 #define Vector_length(vec_p) ({\
     size_t __len = 0;\
     struct c_vector_header *vec_hdr_p = NULL;\

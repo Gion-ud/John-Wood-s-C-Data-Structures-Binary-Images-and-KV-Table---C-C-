@@ -14,74 +14,6 @@ int KVTable_serialise(
     int         fd
 ) {
     if (_KVTable_validate(_this) < 0 || fd < 0 || !_this->kvcnt) return -1;
-    // mem_arena_end_cur = _this->mem_arena.mem_cur;
-    size_t mem_arena_end_cur =
-        _this->kvtbl_p[_this->kvcnt - 1].val_off +
-        _this->kvtbl_p[_this->kvcnt - 1].val_len;
-
-    size_t etbloff = ALIGN_OFFSET(sizeof(KvFileHeader), _this->mem_arena.mem_align);
-    size_t fdatoff = etbloff + ALIGN_OFFSET(
-        _this->kvcnt * sizeof(KvFileEntry),
-        _this->mem_arena.mem_align
-    );
-    size_t fftroff = fdatoff + ALIGN_OFFSET(
-        mem_arena_end_cur,
-        _this->mem_arena.mem_align
-    );
-    size_t filesize = fftroff + sizeof(KvFileFooter);
-    if (ftruncate(fd, filesize) < 0) return errno;
-
-    void *mem = mmap(
-        NULL,
-        filesize,
-        PROT_READ | PROT_WRITE,
-        MAP_SHARED | MAP_FILE,
-        fd,
-        0
-    );
-    if (mem == MAP_FAILED) return errno;
-
-    KvFileHeader   *fhdr_p = (KvFileHeader*)mem;
-    KvFileEntry    *etbl_p = (KvFileEntry*)((byte_t*)mem + etbloff);
-    void           *fdat_p = (void*)((byte_t*)mem + fdatoff);
-    KvFileFooter   *fftr_p = (KvFileFooter*)((byte_t*)mem + fftroff);
-
-    *fhdr_p = (KvFileHeader) {
-        .fh_magic       = KV_FILE_MAGIC,
-        .fh_version     = KV_FILE_VERSION,
-        .fh_align       = _this->mem_arena.mem_align,
-        .fh_fhdrsize    = sizeof(KvFileHeader),
-        .fh_fftrsize    = sizeof(KvFileFooter),
-        .fh_flags       = KVFILE_DEFAULT_FLAGS,
-        .fh_kvcnt       = _this->kvcnt,
-        .fh_tocoff      = etbloff,
-        .fh_kvdatoff    = fdatoff,
-        .fh_fftroff     = fftroff,
-    };
-    for (ulong_t i = 0; i < _this->kvcnt; ++i) {
-        etbl_p[i].flags     = _this->kvtbl_p[i].entry_stat;
-        etbl_p[i].key_len   = _this->kvtbl_p[i].key_len;
-        etbl_p[i].key_off   = _this->kvtbl_p[i].key_off;
-        etbl_p[i].val_len   = _this->kvtbl_p[i].val_len;
-        etbl_p[i].val_off   = _this->kvtbl_p[i].val_off;
-    }
-    memcpy(fdat_p, _this->mem, mem_arena_end_cur);
-    *fftr_p = (KvFileFooter) {
-        .crc32      = compute_mem_crc32(mem, fftroff),
-        .ff_magic   = KV_EOF_MAGIC,
-    };
-
-    munmap(mem, filesize);
-    return 0;
-}
-
-/*
-
-int KVTable_serialise(
-    KVTable    *_this,
-    int         fd
-) {
-    if (_KVTable_validate(_this) < 0 || fd < 0 || !_this->kvcnt) return -1;
 
     KvFileHeader fhdr = {
         .fh_magic       = KV_FILE_MAGIC,
@@ -149,8 +81,6 @@ int KVTable_serialise(
     return 0;
 }
 
-*/
-
 extern KVTable *KVTable_create(
     size_t  kvcap,
     size_t  _mem_size
@@ -201,7 +131,7 @@ KVTable *KVTable_create_load_from_file(int fd) {
     puts("footer cast");
     KvFileFooter *fftr_p = (KvFileFooter*)((byte_t*)f_mapped_mem_p + fhdr_p->fh_fftroff);
     puts("crc");
-    ulong_t fcrc = compute_mem_crc32(f_mapped_mem_p, fhdr_p->fh_fftroff);
+    ulong_t fcrc = fftr_p->crc32;// compute_mem_crc32(f_mapped_mem_p, fhdr_p->fh_fftroff);
     if (fftr_p->ff_magic != KV_EOF_MAGIC || fcrc != fftr_p->crc32) {
         printerrf("crc_src:0x%.8x;crc_current:0x%.8x\n", (ulong_t)fftr_p->crc32, (ulong_t)fcrc);
         printf("kvcnt=%u\n", fhdr_p->fh_kvcnt);

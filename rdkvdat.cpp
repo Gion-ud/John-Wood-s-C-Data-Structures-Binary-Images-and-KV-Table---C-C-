@@ -18,10 +18,7 @@ extern "C" {
 #define mainarg_kvfilename  argv[1]
 #define mainargc            2
 
-#include "dctr.h"
-
-char buffer[512] = {0};
-
+#include "buffer.h"
 
 static char line_buf[4096] = {0};
 
@@ -42,32 +39,43 @@ int main(int argc, char *argv[]) {
     }
     puts("after load");
 
-    std::vector<cstr> key_vec;
-    std::vector<cstr> val_vec;
-
-    cstr key_sz;
-    cstr val_sz;
-
-    char *line_p = (char*)line_buf;
+    char *line_p = static_cast<char*>(line_buf);
     size_t line_len = sizeof(line_buf) - 1;
 
     std::cout << "\t-- KV Table --\n" << "\n";
-    KVPairView kvpv = {0};
-    for (auto i = 0zu; i < kvt_p->size(); ++i) {
+    KVPairView kvpv{};
+    for (size_t i{0}; i < kvt_p->size(); ++i) {
         const KVPairView *kv_p = kvt_p->get_kv_view(kvpv, i);
         if (!kv_p) continue;
         printf(
             "[%zu]\tkey=\"%.*s\"\n\tval=\"%.*s\"\n\n",
             i,
-            (int)kv_p->key_len,(char*)kv_p->key_ptr,
-            (int)kv_p->val_len,(char*)kv_p->val_ptr
+            static_cast<int>(kv_p->key_len),static_cast<char*>(kv_p->key_ptr),
+            static_cast<int>(kv_p->val_len),static_cast<char*>(kv_p->val_ptr)
         );
     }
     std::cout << "\n\n";
     
+    LPBuffer out_val{};
     while(1) {
         std::cout << "Enter key to retrieve value:\n";
         std::cin.getline(line_p, line_len + 1);
+        line_p = line_strip(line_p);
+        if (!line_p || !strlen(line_p)) break;
+        if (
+            kvt_p->lookup(
+                *cstr_to_lpbuf_rdonly(&out_val, line_p),
+                out_val
+            ) < 0
+        ) {
+            std::cerr << "key not found\n";
+            continue;
+        };
+        printf(
+            "kvt[\"%s\"]=\"%.*s\"\n",
+            line_p,
+            static_cast<int>(out_val.len), static_cast<char*>(out_val.data)
+        );
     }
 
     kvt_p->~KVTable();

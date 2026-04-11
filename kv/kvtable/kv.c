@@ -169,7 +169,8 @@ KVTable *KVTable_insert(
         !_KVEntry_valid_lpbuf(key_p) || !_KVEntry_valid_lpbuf(val_p)
     )
         return NULL;
-
+    #include <stdio.h>
+    puts("after lpbuf validation");
     if (_KVTable_should_resize(this, key_p->len, val_p->len)) {
         size_t new_kvcap =
             (_KVTable_kvcap_should_resize(this)) ?
@@ -188,6 +189,8 @@ KVTable *KVTable_insert(
         KVTable_destroy(this);
         this = new_kvt_p;
     };
+
+    printf("after realloc in inserte;;;;;\n");
     LPBuffer out_val;
     if (KVTable_lookup(this, key_p, &out_val) >= 0) KVTable_remove(this, key_p);
     if (_KVTable_insert(this, key_p, val_p) < 0) return NULL;

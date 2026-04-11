@@ -19,13 +19,9 @@ extern "C" {
 #define mainarg_kvcap_str   argv[1]
 #define mainargc            2
 
-#include "dctr.h"
-
-char buffer[512] = {0};
-
+#include "buffer.h"
 
 static char line_buf[4096] = {0};
-
 
 
 int main(int argc, char *argv[]) {
@@ -60,7 +56,7 @@ int main(int argc, char *argv[]) {
     cstr key_sz;
     cstr val_sz;
 
-    char *line_p = (char*)line_buf;
+    char *line_p = static_cast<char*>(line_buf);
     size_t line_len = sizeof(line_buf) - 1;
     for (auto i = 0; i < kvcap; ++i) {
         std::cout << '[' << i << "]\nEnter key: ";
@@ -102,7 +98,7 @@ int main(int argc, char *argv[]) {
             continue;
         }
     }
-    char *filename_p = (char*)line_buf;
+    char *filename_p = static_cast<char*>(line_buf);
     snprintf(
         filename_p, sizeof(line_buf),
         "kvdat_%.8llx.bin",

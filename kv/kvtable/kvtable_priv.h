@@ -194,6 +194,7 @@ static inline kidx_t _KVTable_insert(
     LPBuffer   *val_p
 ) {
     if (!this || !key_p || !val_p) return KVSTAT_NULL_PTR;
+    
 
     kidx_t kidx = this->kvcnt;
     size_t mem_cur_pre_alloc = mem_arena_getcur(&this->mem_arena);
@@ -208,7 +209,7 @@ static inline kidx_t _KVTable_insert(
 
 
     hash32_t key_hash = ht_ops.hash32(key_p->data, key_p->len);
-    ulong_t kvcnt = this->kvcnt;
+    ulong_t kvcnt = 0; // placeholder, ignored
     hidx_t hidx = hash_index_table_insert(
         this->h_idx_tbl_p,
         this->kvcap,

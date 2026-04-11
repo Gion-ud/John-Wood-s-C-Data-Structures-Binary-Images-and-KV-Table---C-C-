@@ -13,6 +13,10 @@
 #include <dbg_print.h>
 
 
+#ifdef _WIN32
+#define fsync(fildes) _commit(fildes)
+#endif
+
 static inline ssize_t read_full(int fd, void *buf, size_t buf_len) {
     size_t n_read_total = 0;
     ssize_t ret = 0;
@@ -49,6 +53,7 @@ static inline ssize_t write_full(int fd, void *buf, size_t buf_len) {
         }
         n_written_total += ret;
     }
+    fsync(fd);
     return (ssize_t)n_written_total;
 }
 

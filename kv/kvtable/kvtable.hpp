@@ -85,8 +85,10 @@ public:
         this->kvt_h = kvt_tmp_h;
         return true;
     }
-    hidx_t lookup(LPBuffer &key, LPBuffer &out_val) noexcept {
-        hidx_t idx = KVTable_lookup(this->kvt_h, &key, &out_val);
+    hidx_t lookup(const LPBuffer &key, LPBuffer &out_val) noexcept {
+        hidx_t idx = KVTable_lookup(
+            this->kvt_h, const_cast<LPBuffer*>(&key), &out_val
+        );
         if (idx < 0) {
             std::cerr << "KVTable_lookup failed\n";
             return idx;
