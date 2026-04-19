@@ -18,3 +18,6 @@ mkkvdat: mkkvdat.cpp mem_arena.o kv.o kv_ser.o
 
 rdkvdat: rdkvdat.cpp mem_arena.o kv.o kv_ser.o
 	g++ $^ -o $@ -Iinclude -Iwin_include -Ikv -Wall -Wextra -Llib -lz -lmman -fno-exceptions -fno-rtti #-Werror# -Wpedantic
+
+kitt: kitt.c include/mem/mem_arena.c kv/key_index_table/kidxtbl.c
+	cc $^ -o $@ -Iinclude -Iwin_include -Ikv -I. -Wall -Wextra

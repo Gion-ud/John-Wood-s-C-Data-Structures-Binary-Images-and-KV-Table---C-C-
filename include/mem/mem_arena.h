@@ -21,50 +21,17 @@ typedef struct mem_arena {
 
 
 
-MA_EXTERN long long mem_arena_init(
+extern long mem_arena_init(
     MemArena   *_this,
     void       *mem_buf,
     size_t      mem_size,
     size_t      mem_align
 );
-MA_EXTERN void *mem_arena_alloc(MemArena *_this, size_t size);
-MA_EXTERN void *mem_arena_alloc_memcur(
-    MemArena   *_this,
-    size_t      size,
-    size_t     *out_mem_cur_p
-);
+extern void *mem_arena_alloc(MemArena *_this, size_t size);
+extern void *mem_arena_alloc_arr(MemArena *_this, size_t count, size_t elem_size);
+extern size_t mem_arena_getcur(MemArena *_this);
+extern void mem_arena_setcur(MemArena *_this, size_t prev_pos);
+extern void mem_arena_reset(MemArena *_this);
 
-
-MA_INLINED void *mem_arena_memcur_to_addr(
-    MemArena   *_this,
-    size_t      mem_cur
-) {
-    if (!_this || !_this->mem_buf || mem_cur > _this->mem_cur) return NULL;
-    return (unsigned char*)_this->mem_buf + mem_cur;
-}
-
-MA_INLINED size_t mem_arena_getcur(MemArena *_this) {
-    if (!_this || !_this->mem_buf) return 0;
-    return _this->mem_cur;
-}
-
-MA_INLINED size_t mem_arena_setcur(MemArena *_this, size_t prev_pos) {
-    if (
-        !_this ||
-        !_this->mem_buf ||
-        prev_pos > _this->mem_cur
-    ) return 0;
-
-    _this->mem_cur = prev_pos;
-    return _this->mem_cur;
-}
-
-
-MA_INLINED void mem_arena_reset(MemArena *_this) {
-    if (!_this ||!_this->mem_buf) return;
-    _this->mem_cur = 0;
-    _this->mem_alloc_cnt = 0;
-    return;
-}
 
 #endif
