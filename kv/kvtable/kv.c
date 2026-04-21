@@ -193,7 +193,9 @@ KVTable *KVTable_insert(
     printf("after realloc in inserte;;;;;\n");
     LPBuffer out_val;
     if (KVTable_lookup(this, key_p, &out_val) >= 0) KVTable_remove(this, key_p);
+    printf("after lookup\n");
     if (_KVTable_insert(this, key_p, val_p) < 0) return NULL;
+    printf("after insert\n");
     return this;
 }
 

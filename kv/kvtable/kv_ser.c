@@ -64,6 +64,13 @@ int KVTable_serialise(
         etbl_p[i].key_off   = _this->kvtbl_p[i].key_off;
         etbl_p[i].val_len   = _this->kvtbl_p[i].val_len;
         etbl_p[i].val_off   = _this->kvtbl_p[i].val_off;
+        printf(
+            "key=%.*s;len=%u;off=%u;arena_end_off=%zu\n",
+            (int)etbl_p[i].key_len, (char*)mem_arena_memcur_to_addr(&_this->mem_arena, etbl_p[i].key_off),
+            etbl_p[i].key_len,
+            etbl_p[i].key_off,
+            _this->mem_arena.mem_size
+        );
     }
     memcpy(fdat_p, _this->mem, mem_arena_end_cur);
     *fftr_p = (KvFileFooter) {
@@ -203,7 +210,7 @@ KVTable *KVTable_create_load_from_file(int fd) {
     puts("crc");
     ulong_t fcrc = compute_mem_crc32(f_mapped_mem_p, fhdr_p->fh_fftroff);
     if (fftr_p->ff_magic != KV_EOF_MAGIC || fcrc != fftr_p->crc32) {
-        printerrf("crc_src:0x%.8x;crc_current:0x%.8x\n", (ulong_t)fftr_p->crc32, (ulong_t)fcrc);
+        printerrf("crc_src:0x%.8x;crc_current:0x%.8x\n", (dword_t)fftr_p->crc32, (dword_t)fcrc);
         printf("kvcnt=%u\n", fhdr_p->fh_kvcnt);
         munmap(f_mapped_mem_p, st.st_size);
         return NULL;

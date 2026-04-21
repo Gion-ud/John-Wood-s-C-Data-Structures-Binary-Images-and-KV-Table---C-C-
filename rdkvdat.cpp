@@ -24,7 +24,7 @@ static char line_buf[4096] = {0};
 
 int main(int argc, char *argv[]) {
     if (argc != 2) {
-        std::cerr << "Usage: <this prog name> <kv capacity>\n";
+        std::cerr << "Usage: <this prog name> <kv filename>\n";
         return -1;
     }
 
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
     std::cout << "\t-- KV Table --\n" << "\n";
     KVPairView kvpv{};
     for (size_t i{0}; i < kvt_p->size(); ++i) {
-        const KVPairView *kv_p = kvt_p->get_kv_view(kvpv, i);
+        const KVPairView *kv_p = kvt_p->get_kv_view(&kvpv, i);
         if (!kv_p) continue;
         printf(
             "[%zu]\tkey=\"%.*s\"\n\tval=\"%.*s\"\n\n",
@@ -64,8 +64,8 @@ int main(int argc, char *argv[]) {
         if (!line_p || !strlen(line_p)) break;
         if (
             kvt_p->lookup(
-                *cstr_to_lpbuf_rdonly(&out_val, line_p),
-                out_val
+                cstr_to_lpbuf_rdonly(&out_val, line_p),
+                &out_val
             ) < 0
         ) {
             std::cerr << "key not found\n";

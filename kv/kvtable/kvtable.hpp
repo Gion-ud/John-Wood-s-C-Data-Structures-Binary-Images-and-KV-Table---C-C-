@@ -52,8 +52,8 @@ public:
     size_t capacity() noexcept {
         return KVTable_capacity(this->kvt_h);
     }
-    const KVPairView *get_kv_view(KVPairView &out_kvpv, size_t idx) noexcept {
-        return KVTable_get(this->kvt_h, &out_kvpv, idx);
+    const KVPairView *get_kv_view(KVPairView *out_kvpv_p, size_t idx) noexcept {
+        return KVTable_get(this->kvt_h, out_kvpv_p, idx);
     }
 
     int load_from_file(const char *filename_p) noexcept {
@@ -75,9 +75,9 @@ public:
         close(fd);
         return 0;
     }
-    bool insert(const LPBuffer &key, const LPBuffer &val) noexcept {
+    bool insert(const LPBuffer *key_p, const LPBuffer *val_p) noexcept {
         KVTableHandle kvt_tmp_h = KVTable_insert(
-            this->kvt_h, const_cast<LPBuffer*>(&key), const_cast<LPBuffer*>(&val));
+            this->kvt_h, const_cast<LPBuffer*>(key_p), const_cast<LPBuffer*>(val_p));
         if (!kvt_tmp_h) {
             std::cerr << "KVTable_insert failed\n";
             return false;
@@ -85,9 +85,9 @@ public:
         this->kvt_h = kvt_tmp_h;
         return true;
     }
-    hidx_t lookup(const LPBuffer &key, LPBuffer &out_val) noexcept {
+    hidx_t lookup(const LPBuffer *key_p, LPBuffer *out_val_p) noexcept {
         hidx_t idx = KVTable_lookup(
-            this->kvt_h, const_cast<LPBuffer*>(&key), &out_val
+            this->kvt_h, const_cast<LPBuffer*>(key_p), out_val_p
         );
         if (idx < 0) {
             std::cerr << "KVTable_lookup failed\n";

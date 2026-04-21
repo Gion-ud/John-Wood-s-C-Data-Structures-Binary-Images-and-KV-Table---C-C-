@@ -186,27 +186,36 @@ static inline ssize_t _KVTable_reserve_memory(KVTable *this, size_t mem_size) {
     return (ssize_t)mem_size;
 }
 
-#include <stdio.h>
+#include <dbg_print.h>
 
 static inline kidx_t _KVTable_insert(
     KVTable    *this,
     LPBuffer   *key_p,
     LPBuffer   *val_p
 ) {
+    print_dbg_msg("before ERR VALIDATION\n");
+    assert(this);
+    assert(key_p);
+    assert(val_p);
     if (!this || !key_p || !val_p) return KVSTAT_NULL_PTR;
-    
+
 
     kidx_t kidx = this->kvcnt;
     size_t mem_cur_pre_alloc = mem_arena_getcur(&this->mem_arena);
     void *key_data_p = NULL, *val_data_p = NULL;
 
-    key_data_p = mem_arena_alloc_memcur(&this->mem_arena, key_p->len + 1, &this->kvtbl_p[kidx].key_off);
-    val_data_p = mem_arena_alloc_memcur(&this->mem_arena, val_p->len + 1, &this->kvtbl_p[kidx].val_off);
+    print_dbg_msg("before kv alloc\n");
+    
+    key_data_p = mem_arena_alloc(&this->mem_arena, key_p->len + 1);
+    val_data_p = mem_arena_alloc(&this->mem_arena, val_p->len + 1);
     if (!key_data_p || !val_data_p) {
-        mem_arena_setcur(&this->mem_arena, mem_cur_pre_alloc);
+        mem_arena_setcur(&this->mem_arena, mem_cur_pre_alloc); // rollback
         return KVSTAT_ALLOC_FAILURE;
     }
-
+    this->kvtbl_p[kidx].key_off = mem_arena_addr_to_memcur(&this->mem_arena, key_data_p);
+    this->kvtbl_p[kidx].val_off = mem_arena_addr_to_memcur(&this->mem_arena, val_data_p);
+    assert(this->kvtbl_p[kidx].key_off != this->kvtbl_p[kidx].val_off);
+    print_dbg_msg("after kv alloc");
 
     hash32_t key_hash = ht_ops.hash32(key_p->data, key_p->len);
     ulong_t kvcnt = 0; // placeholder, ignored
@@ -221,6 +230,7 @@ static inline kidx_t _KVTable_insert(
         mem_arena_setcur(&this->mem_arena, mem_cur_pre_alloc);
         return KVSTAT_HIT_INSERT_FAILED;
     }
+    print_dbg_msg("after ht insert");
 
 
     this->kvtbl_p[kidx].key_hash   = key_hash;

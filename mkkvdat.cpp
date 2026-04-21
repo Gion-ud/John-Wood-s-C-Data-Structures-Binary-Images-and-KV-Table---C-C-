@@ -15,8 +15,9 @@ extern "C" {
 #include <kvtable/kvtable.hpp>
 #include <cstr.h>
 
-#define mainarg_this_prog   argv[0]
-#define mainarg_kvcap_str   argv[1]
+#define mainarg_this_prog       argv[0]
+#define mainarg_kvcap_cstr      argv[1]
+#define mainarg_filename_cstr   argv[2]
 #define mainargc            2
 
 #include "buffer.h"
@@ -25,12 +26,12 @@ static char line_buf[4096] = {0};
 
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        std::cerr << "Usage: <this prog name> <kv capacity>\n";
+    if (argc != 2 && argc != 3) {
+        std::cerr << "Usage: <this prog name> <kv capacity> (<kv filename>)\n";
         return -1;
     }
     char *end_p = NULL;
-    long kvcap = strtol(mainarg_kvcap_str, &end_p, 10);
+    long kvcap = strtol(mainarg_kvcap_cstr, &end_p, 10);
     if (end_p[0] != '\0') {
         std::cerr << "strtol failed: Invalid kv capacity\n";
         return -1;
@@ -90,21 +91,28 @@ int main(int argc, char *argv[]) {
         if (!key_sz_p || !val_sz_p) continue;
         if (
             !kvt_p->insert(
-                *(cstr_to_lpbuf_rdonly(&key, key_sz_p)),
-                *(cstr_to_lpbuf_rdonly(&val, val_sz_p))
+                cstr_to_lpbuf_rdonly(&key, key_sz_p),
+                cstr_to_lpbuf_rdonly(&val, val_sz_p)
             )
         ) {
             std::cerr << "kvt_p->insert() failed at iteration " << i << "\n";
             continue;
         }
     }
-    char *filename_p = static_cast<char*>(line_buf);
-    snprintf(
-        filename_p, sizeof(line_buf),
-        "kvdat_%.8llx.bin",
-        (qword_t)time(NULL)
-    );
-    if (kvt_p->serialise(filename_p)) {
+    char *filename_cstr_p = nullptr;
+
+    if (mainarg_filename_cstr && *mainarg_filename_cstr) {
+        filename_cstr_p = mainarg_filename_cstr;
+    } else {
+        filename_cstr_p = static_cast<char*>(line_buf);
+        snprintf(
+            filename_cstr_p, sizeof(line_buf),
+            "kvdat_%.8llx.bin",
+            (qword_t)time(NULL)
+        );  
+    }
+
+    if (kvt_p->serialise(filename_cstr_p)) {
         std::cerr << "kvt_p->serialise() failed\n";
     }
 
